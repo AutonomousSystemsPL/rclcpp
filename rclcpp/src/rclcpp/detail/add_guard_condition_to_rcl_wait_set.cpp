@@ -15,8 +15,6 @@
 #include "rclcpp/detail/add_guard_condition_to_rcl_wait_set.hpp"
 #include "rclcpp/exceptions.hpp"
 
-#include "rcutils/logging_macros.h"
-
 namespace rclcpp
 {
 namespace detail
@@ -28,15 +26,6 @@ add_guard_condition_to_rcl_wait_set(
   const rclcpp::GuardCondition & guard_condition)
 {
   const auto & gc = guard_condition.get_rcl_guard_condition();
-
-  // Guard against finalized guard conditions whose impl has been set to NULL
-  // by rcl_guard_condition_fini() during callback group destruction.
-  if (!gc.impl) {
-    RCUTILS_LOG_WARN_NAMED(
-      "rclcpp",
-      "Skipping finalized guard condition (impl is NULL) in add_guard_condition_to_rcl_wait_set");
-    return;
-  }
 
   rcl_ret_t ret = rcl_wait_set_add_guard_condition(&wait_set, &gc, NULL);
 
