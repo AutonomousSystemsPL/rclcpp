@@ -233,7 +233,12 @@ public:
     }
 
     for (auto guard_condition : guard_conditions_) {
-      detail::add_guard_condition_to_rcl_wait_set(*wait_set, *guard_condition);
+      try {
+        detail::add_guard_condition_to_rcl_wait_set(*wait_set, *guard_condition);
+      } catch (const rclcpp::exceptions::RCLError & ex) {
+        RCUTILS_LOG_WARN_NAMED(
+          "rclcpp", "Skipping guard condition in add_handles_to_wait_set: %s", ex.what());
+      }
     }
 
     for (const std::shared_ptr<Waitable> & waitable : waitable_handles_) {
